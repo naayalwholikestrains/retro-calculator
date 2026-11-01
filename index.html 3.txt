@@ -1,0 +1,691 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casio FX Vintage Calculator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+:root {
+  --body-top: #c7c9c1;
+  --body-mid: #a7aaa1;
+  --body-bottom: #898d84;
+  --dark: #252a26;
+  --screen: #a0ad91;
+  --screen-text: #293829;
+  --orange: #b56d32;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #20231f;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* MAIN CASING */
+
+.calculator {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding: clamp(15px, 3vh, 35px) clamp(18px, 5vw, 65px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(115deg, #d0d1c9 0%, #b9bcb3 35%, #969a91 100%);
+  box-shadow:
+    inset 3px 3px 5px #ffffff99,
+    inset -4px -5px 10px #4c514b80;
+  border: 2px solid #747970;
+}
+
+/* BRANDING */
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.brand {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(25px, 4vw, 45px);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 3px;
+  color: #333932;
+  text-shadow: 1px 1px #e2e3db;
+}
+
+.brand-info {
+  font-size: clamp(8px, 1vw, 12px);
+  color: #454a43;
+  letter-spacing: 2px;
+  text-align: right;
+}
+
+.model {
+  font-family: 'Roboto Mono', monospace;
+  font-size: clamp(9px, 1.2vw, 13px);
+  font-weight: 700;
+  color: #41463f;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+
+/* LCD */
+
+.display-frame {
+  background: #656b60;
+  padding: 7px;
+  border-radius: 5px;
+  margin-bottom: 14px;
+  box-shadow:
+    2px 3px 5px #3338,
+    inset 1px 1px 2px #ffffff55;
+}
+
+.display {
+  height: clamp(85px, 16vh, 145px);
+  padding: 12px 16px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      #384b3510 4px
+    ),
+    linear-gradient(135deg, #aab69a, #929f83);
+  border: 1px solid #64725a;
+  box-shadow: inset 0 2px 9px #26342588;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+#history {
+  font-family: 'Share Tech Mono', monospace;
+  color: #516149;
+  font-size: clamp(11px, 1.5vw, 16px);
+  min-height: 15px;
+  text-align: right;
+  letter-spacing: 1px;
+}
+
+#screen {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: clamp(28px, 6vw, 65px);
+  letter-spacing: clamp(2px, .6vw, 7px);
+  color: var(--screen-text);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.2;
+  text-shadow:
+    1px 0 #293829,
+    -1px 0 #293829,
+    0 1px #293829;
+  -webkit-font-smoothing: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* MODE SWITCH */
+
+.mode {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mode button {
+  flex: 1;
+  padding: 11px;
+  border: 1px solid #767b72;
+  border-radius: 4px;
+  background: linear-gradient(#c1c3ba, #969a91);
+  color: #373d36;
+  font-family: 'Roboto Mono', monospace;
+  font-size: clamp(10px, 1.5vw, 14px);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 3px #0003;
+}
+
+.mode button.active {
+  background: linear-gradient(#4c554a, #30372f);
+  color: #e0e5d8;
+  box-shadow: inset 0 2px 4px #0005;
+}
+
+/* SCIENTIFIC BUTTONS */
+
+.scientific {
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 9px;
+  margin-bottom: 13px;
+}
+
+.scientific.show {
+  display: grid;
+}
+
+.scientific button {
+  height: clamp(33px, 6vh, 52px);
+  border: 1px solid #30372f;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #646c61, #373e37);
+  color: #f2f2e9;
+  font-family: 'Roboto Mono', monospace;
+  font-size: clamp(10px, 1.4vw, 15px);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #20251f;
+}
+
+.scientific button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #20251f;
+}
+
+/* MAIN KEYPAD */
+
+.keys {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  gap: clamp(7px, 1.5vw, 15px);
+}
+
+.key {
+  min-height: 0;
+  border: 1px solid #747970;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #51574f, #30362f);
+  color: #eeeee5;
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(16px, 2.7vw, 27px);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow:
+    0 4px 0 #20251f,
+    0 6px 7px #0004,
+    inset 1px 1px 2px #ffffff30;
+  transition: transform .08s, filter .1s;
+}
+
+.key:hover {
+  filter: brightness(1.17);
+}
+
+.key:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #20251f,
+    inset 1px 1px 3px #0005;
+}
+
+.key.operator {
+  background: linear-gradient(145deg, #7d8378, #50564e);
+}
+
+.key.action {
+  background: linear-gradient(145deg, #cb8a4c, #925329);
+  border-color: #80502e;
+  color: #fff8e9;
+}
+
+.key.equals {
+  background: linear-gradient(145deg, #d1954e, #995c2b);
+  border-color: #80502e;
+  color: white;
+}
+
+.footer {
+  flex-shrink: 0;
+  margin-top: 13px;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #444a41;
+}
+
+/* SMALL SCREENS */
+
+@media(max-width: 500px) {
+  .calculator {
+    padding: 12px;
+  }
+
+  .brand {
+    font-size: 26px;
+  }
+
+  .keys {
+    gap: 8px;
+  }
+
+  .key {
+    border-radius: 6px;
+  }
+}
+
+@media(max-height: 650px) {
+  .calculator {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .display-frame {
+    margin-bottom: 7px;
+  }
+
+  .display {
+    height: 65px;
+    padding: 7px 12px;
+  }
+
+  .model {
+    margin-bottom: 6px;
+  }
+
+  .mode {
+    margin-bottom: 7px;
+  }
+
+  .scientific {
+    margin-bottom: 7px;
+    gap: 6px;
+  }
+
+  .scientific button {
+    height: 30px;
+  }
+
+  .footer {
+    margin-top: 7px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+  <div class="top">
+    <div class="brand">CASIO</div>
+    <div class="brand-info">
+      PERSONAL<br>CALCULATOR
+    </div>
+  </div>
+
+  <div class="model">
+    FX SERIES · ELECTRONIC CALCULATOR
+  </div>
+
+  <div class="display-frame">
+    <div class="display">
+      <div id="history"></div>
+      <div id="screen">0</div>
+    </div>
+  </div>
+
+  <div class="mode">
+    <button id="basicBtn" class="active"
+      onclick="setMode('basic')">BASIC</button>
+
+    <button id="sciBtn"
+      onclick="setMode('scientific')">SCIENTIFIC</button>
+  </div>
+
+  <div class="scientific" id="scientific">
+    <button onclick="insert('sin(')">sin</button>
+    <button onclick="insert('cos(')">cos</button>
+    <button onclick="insert('tan(')">tan</button>
+    <button onclick="insert('sqrt(')">√</button>
+    <button onclick="insert('^2')">x²</button>
+
+    <button onclick="insert('log(')">log</button>
+    <button onclick="insert('ln(')">ln</button>
+    <button onclick="insert('pi')">π</button>
+    <button onclick="insert('e')">e</button>
+    <button onclick="insert('^')">xʸ</button>
+
+    <button onclick="insert('(')">(</button>
+    <button onclick="insert(')')">)</button>
+    <button onclick="insert('!')">n!</button>
+    <button onclick="insert('abs(')">abs</button>
+    <button onclick="toggleAngle()" id="angleBtn">DEG</button>
+  </div>
+
+  <div class="keys">
+
+    <button class="key action" onclick="clearAll()">AC</button>
+    <button class="key action" onclick="backspace()">DEL</button>
+    <button class="key operator" onclick="insert('%')">%</button>
+    <button class="key operator" onclick="insert('/')">÷</button>
+
+    <button class="key" onclick="insert('7')">7</button>
+    <button class="key" onclick="insert('8')">8</button>
+    <button class="key" onclick="insert('9')">9</button>
+    <button class="key operator" onclick="insert('*')">×</button>
+
+    <button class="key" onclick="insert('4')">4</button>
+    <button class="key" onclick="insert('5')">5</button>
+    <button class="key" onclick="insert('6')">6</button>
+    <button class="key operator" onclick="insert('-')">−</button>
+
+    <button class="key" onclick="insert('1')">1</button>
+    <button class="key" onclick="insert('2')">2</button>
+    <button class="key" onclick="insert('3')">3</button>
+    <button class="key operator" onclick="insert('+')">+</button>
+
+    <button class="key" onclick="insert('0')">0</button>
+    <button class="key" onclick="insert('.')">.</button>
+    <button class="key equals" onclick="calculate()">=</button>
+
+  </div>
+
+  <div class="footer">
+    CASIO · FX SERIES
+  </div>
+
+</div>
+
+<script>
+let expression = "";
+let justCalculated = false;
+let degrees = true;
+
+const screen = document.getElementById("screen");
+const history = document.getElementById("history");
+
+function render() {
+  screen.textContent = expression || "0";
+}
+
+function insert(value) {
+  if (justCalculated) {
+    if (/^[0-9.]$/.test(value) ||
+        value === "pi" || value === "e") {
+      expression = "";
+    }
+    justCalculated = false;
+  }
+
+  if (expression.length >= 45) return;
+
+  expression += value;
+  render();
+}
+
+function clearAll() {
+  expression = "";
+  history.textContent = "";
+  justCalculated = false;
+  render();
+}
+
+function backspace() {
+  expression = expression.slice(0, -1);
+  justCalculated = false;
+  render();
+}
+
+function setMode(mode) {
+  const sci = mode === "scientific";
+
+  document.getElementById("scientific")
+    .classList.toggle("show", sci);
+
+  document.getElementById("basicBtn")
+    .classList.toggle("active", !sci);
+
+  document.getElementById("sciBtn")
+    .classList.toggle("active", sci);
+}
+
+function toggleAngle() {
+  degrees = !degrees;
+  document.getElementById("angleBtn").textContent =
+    degrees ? "DEG" : "RAD";
+}
+
+/* MATHEMATICAL PARSER */
+
+function evaluate(input) {
+  const tokens = input.match(
+    /\d+(?:\.\d*)?|\.\d+|[a-zA-Z]+|[+\-*/^()%!]/g
+  );
+
+  if (!tokens || tokens.join("") !== input.replace(/\s/g, "")) {
+    throw Error("Invalid expression");
+  }
+
+  let pos = 0;
+
+  function peek() {
+    return tokens[pos];
+  }
+
+  function take() {
+    return tokens[pos++];
+  }
+
+  function expressionParser() {
+    let value = term();
+
+    while (peek() === "+" || peek() === "-") {
+      const op = take();
+      const right = term();
+      value = op === "+" ? value + right : value - right;
+    }
+
+    return value;
+  }
+
+  function term() {
+    let value = unary();
+
+    while (["*", "/", "%"].includes(peek())) {
+      const op = take();
+      const right = unary();
+
+      if (op === "*") value *= right;
+      if (op === "/") value /= right;
+      if (op === "%") value %= right;
+    }
+
+    return value;
+  }
+
+  function unary() {
+    if (peek() === "-") {
+      take();
+      return -unary();
+    }
+
+    if (peek() === "+") {
+      take();
+      return unary();
+    }
+
+    return power();
+  }
+
+  function power() {
+    let value = postfix();
+
+    if (peek() === "^") {
+      take();
+      value = Math.pow(value, unary());
+    }
+
+    return value;
+  }
+
+  function postfix() {
+    let value = primary();
+
+    while (peek() === "!" || peek() === "%") {
+      const op = take();
+
+      if (op === "%") value /= 100;
+
+      if (op === "!") {
+        if (value < 0 ||
+            !Number.isInteger(value) ||
+            value > 170) {
+          throw Error("Invalid factorial");
+        }
+
+        let answer = 1;
+
+        for (let i = 2; i <= value; i++) {
+          answer *= i;
+        }
+
+        value = answer;
+      }
+    }
+
+    return value;
+  }
+
+  function primary() {
+    const token = take();
+
+    if (token === "(") {
+      const value = expressionParser();
+
+      if (take() !== ")") {
+        throw Error("Missing bracket");
+      }
+
+      return value;
+    }
+
+    if (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token)) {
+      return Number(token);
+    }
+
+    if (token === "pi") return Math.PI;
+    if (token === "e") return Math.E;
+
+    const functions = {
+      sin: x => Math.sin(degrees ? x * Math.PI / 180 : x),
+      cos: x => Math.cos(degrees ? x * Math.PI / 180 : x),
+      tan: x => Math.tan(degrees ? x * Math.PI / 180 : x),
+      sqrt: x => Math.sqrt(x),
+      log: x => Math.log10(x),
+      ln: x => Math.log(x),
+      abs: x => Math.abs(x)
+    };
+
+    if (functions[token]) {
+      if (take() !== "(") {
+        throw Error("Missing bracket");
+      }
+
+      const argument = expressionParser();
+
+      if (take() !== ")") {
+        throw Error("Missing bracket");
+      }
+
+      return functions[token](argument);
+    }
+
+    throw Error("Invalid expression");
+  }
+
+  const answer = expressionParser();
+
+  if (pos !== tokens.length || !Number.isFinite(answer)) {
+    throw Error("Math error");
+  }
+
+  return answer;
+}
+
+/* CALCULATE */
+
+function calculate() {
+  if (!expression) return;
+
+  try {
+    const oldExpression = expression;
+    const answer = evaluate(expression);
+
+    history.textContent = oldExpression + " =";
+    expression = String(Number(answer.toPrecision(12)));
+
+    justCalculated = true;
+    render();
+
+  } catch {
+    history.textContent = "MATH ERROR";
+    screen.textContent = "Error";
+    expression = "";
+    justCalculated = true;
+  }
+}
+
+/* KEYBOARD */
+
+document.addEventListener("keydown", event => {
+  const key = event.key;
+
+  if (/^[0-9.]$/.test(key)) {
+    insert(key);
+  }
+
+  else if (["+", "-", "*", "/", "%", "(", ")", "^"].includes(key)) {
+    insert(key);
+  }
+
+  else if (key === "Enter" || key === "=") {
+    event.preventDefault();
+    calculate();
+  }
+
+  else if (key === "Backspace") {
+    backspace();
+  }
+
+  else if (key === "Escape" || key === "Delete") {
+    clearAll();
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>
+ 
