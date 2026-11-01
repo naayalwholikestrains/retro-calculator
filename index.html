@@ -40,8 +40,6 @@ body {
   font-family: 'Roboto Mono', monospace;
 }
 
-/* MAIN CASING */
-
 .calculator {
   width: 100%;
   height: 100vh;
@@ -56,8 +54,6 @@ body {
     inset -4px -5px 10px #4c514b80;
   border: 2px solid #747970;
 }
-
-/* BRANDING */
 
 .top {
   display: flex;
@@ -91,8 +87,6 @@ body {
   letter-spacing: 3px;
   margin-bottom: 12px;
 }
-
-/* LCD */
 
 .display-frame {
   background: #656b60;
@@ -150,65 +144,6 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* MODE SWITCH */
-
-.mode {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.mode button {
-  flex: 1;
-  padding: 11px;
-  border: 1px solid #767b72;
-  border-radius: 4px;
-  background: linear-gradient(#c1c3ba, #969a91);
-  color: #373d36;
-  font-family: 'Roboto Mono', monospace;
-  font-size: clamp(10px, 1.5vw, 14px);
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 2px 3px #0003;
-}
-
-.mode button.active {
-  background: linear-gradient(#4c554a, #30372f);
-  color: #e0e5d8;
-  box-shadow: inset 0 2px 4px #0005;
-}
-
-/* SCIENTIFIC BUTTONS */
-
-.scientific {
-  display: none;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 9px;
-  margin-bottom: 13px;
-}
-
-.scientific.show {
-  display: grid;
-}
-
-.scientific button {
-  height: clamp(33px, 6vh, 52px);
-  border: 1px solid #30372f;
-  border-radius: 5px;
-  background: linear-gradient(145deg, #646c61, #373e37);
-  color: #f2f2e9;
-  font-family: 'Roboto Mono', monospace;
-  font-size: clamp(10px, 1.4vw, 15px);
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #20251f;
-}
-
-.scientific button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #20251f;
-}
-
 /* MAIN KEYPAD */
 
 .keys {
@@ -216,7 +151,7 @@ body {
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(0, 1fr));
   gap: clamp(7px, 1.5vw, 15px);
 }
 
@@ -313,19 +248,6 @@ body {
     margin-bottom: 6px;
   }
 
-  .mode {
-    margin-bottom: 7px;
-  }
-
-  .scientific {
-    margin-bottom: 7px;
-    gap: 6px;
-  }
-
-  .scientific button {
-    height: 30px;
-  }
-
   .footer {
     margin-top: 7px;
   }
@@ -353,34 +275,6 @@ body {
       <div id="history"></div>
       <div id="screen">0</div>
     </div>
-  </div>
-
-  <div class="mode">
-    <button id="basicBtn" class="active"
-      onclick="setMode('basic')">BASIC</button>
-
-    <button id="sciBtn"
-      onclick="setMode('scientific')">SCIENTIFIC</button>
-  </div>
-
-  <div class="scientific" id="scientific">
-    <button onclick="insert('sin(')">sin</button>
-    <button onclick="insert('cos(')">cos</button>
-    <button onclick="insert('tan(')">tan</button>
-    <button onclick="insert('sqrt(')">√</button>
-    <button onclick="insert('^2')">x²</button>
-
-    <button onclick="insert('log(')">log</button>
-    <button onclick="insert('ln(')">ln</button>
-    <button onclick="insert('pi')">π</button>
-    <button onclick="insert('e')">e</button>
-    <button onclick="insert('^')">xʸ</button>
-
-    <button onclick="insert('(')">(</button>
-    <button onclick="insert(')')">)</button>
-    <button onclick="insert('!')">n!</button>
-    <button onclick="insert('abs(')">abs</button>
-    <button onclick="toggleAngle()" id="angleBtn">DEG</button>
   </div>
 
   <div class="keys">
@@ -420,7 +314,6 @@ body {
 <script>
 let expression = "";
 let justCalculated = false;
-let degrees = true;
 
 const screen = document.getElementById("screen");
 const history = document.getElementById("history");
@@ -431,8 +324,7 @@ function render() {
 
 function insert(value) {
   if (justCalculated) {
-    if (/^[0-9.]$/.test(value) ||
-        value === "pi" || value === "e") {
+    if (/^[0-9.]$/.test(value)) {
       expression = "";
     }
     justCalculated = false;
@@ -457,30 +349,11 @@ function backspace() {
   render();
 }
 
-function setMode(mode) {
-  const sci = mode === "scientific";
-
-  document.getElementById("scientific")
-    .classList.toggle("show", sci);
-
-  document.getElementById("basicBtn")
-    .classList.toggle("active", !sci);
-
-  document.getElementById("sciBtn")
-    .classList.toggle("active", sci);
-}
-
-function toggleAngle() {
-  degrees = !degrees;
-  document.getElementById("angleBtn").textContent =
-    degrees ? "DEG" : "RAD";
-}
-
-/* MATHEMATICAL PARSER */
+/* BASIC MATHEMATICAL PARSER */
 
 function evaluate(input) {
   const tokens = input.match(
-    /\d+(?:\.\d*)?|\.\d+|[a-zA-Z]+|[+\-*/^()%!]/g
+    /\d+(?:\.\d*)?|\.\d+|[+\-*/()%]/g
   );
 
   if (!tokens || tokens.join("") !== input.replace(/\s/g, "")) {
@@ -535,46 +408,7 @@ function evaluate(input) {
       return unary();
     }
 
-    return power();
-  }
-
-  function power() {
-    let value = postfix();
-
-    if (peek() === "^") {
-      take();
-      value = Math.pow(value, unary());
-    }
-
-    return value;
-  }
-
-  function postfix() {
-    let value = primary();
-
-    while (peek() === "!" || peek() === "%") {
-      const op = take();
-
-      if (op === "%") value /= 100;
-
-      if (op === "!") {
-        if (value < 0 ||
-            !Number.isInteger(value) ||
-            value > 170) {
-          throw Error("Invalid factorial");
-        }
-
-        let answer = 1;
-
-        for (let i = 2; i <= value; i++) {
-          answer *= i;
-        }
-
-        value = answer;
-      }
-    }
-
-    return value;
+    return primary();
   }
 
   function primary() {
@@ -592,33 +426,6 @@ function evaluate(input) {
 
     if (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token)) {
       return Number(token);
-    }
-
-    if (token === "pi") return Math.PI;
-    if (token === "e") return Math.E;
-
-    const functions = {
-      sin: x => Math.sin(degrees ? x * Math.PI / 180 : x),
-      cos: x => Math.cos(degrees ? x * Math.PI / 180 : x),
-      tan: x => Math.tan(degrees ? x * Math.PI / 180 : x),
-      sqrt: x => Math.sqrt(x),
-      log: x => Math.log10(x),
-      ln: x => Math.log(x),
-      abs: x => Math.abs(x)
-    };
-
-    if (functions[token]) {
-      if (take() !== "(") {
-        throw Error("Missing bracket");
-      }
-
-      const argument = expressionParser();
-
-      if (take() !== ")") {
-        throw Error("Missing bracket");
-      }
-
-      return functions[token](argument);
     }
 
     throw Error("Invalid expression");
@@ -656,7 +463,7 @@ function calculate() {
   }
 }
 
-/* KEYBOARD */
+/* KEYBOARD SUPPORT */
 
 document.addEventListener("keydown", event => {
   const key = event.key;
@@ -665,7 +472,7 @@ document.addEventListener("keydown", event => {
     insert(key);
   }
 
-  else if (["+", "-", "*", "/", "%", "(", ")", "^"].includes(key)) {
+  else if (["+", "-", "*", "/", "%", "(", ")"].includes(key)) {
     insert(key);
   }
 
@@ -688,4 +495,3 @@ render();
 
 </body>
 </html>
- 
